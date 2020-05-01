@@ -4,13 +4,20 @@ const { check, validationResult } = require("express-validator/check");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const auth = require("../middleware/auth");
 const User = require("../models/User");
 
 // @route   GET api/auth
 // @desc    Get logged in user
 // @access  Private
-router.get("/", (req, res) => {
-  res.json({ msg: "This is a GET api/auth" });
+router.get("/", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // not return password
+    res.json(user);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Server Error");
+  }
 });
 
 // @route   POST api/auth
@@ -30,9 +37,10 @@ router.post(
 
     const { email, password } = req.body;
     try {
+      // see if the user exists in the db
       let user = await User.findOne({ email });
       !user && res.status(400).json({ msg: "Invalid Credentials" });
-
+      // see if the password entered matches with the stored password
       const isMatch = await bcrypt.compare(password, user.password);
       !isMatch && res.status(400).json({ msg: "Invalid Credentials" });
 
