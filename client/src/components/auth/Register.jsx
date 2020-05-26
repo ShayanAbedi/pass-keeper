@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import AlertContext from "../../context/alert/alertContext";
 
 export const Register = () => {
+  const alertContext = useContext(AlertContext);
+
+  const { setAlert } = alertContext;
+
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -13,7 +18,11 @@ export const Register = () => {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log("Register submit", e.target);
+    if (password !== password2) {
+      setAlert("Passwords do no match", "danger");
+    } else {
+      console.log("Register submit", e.target);
+    }
   };
   return (
     <div className="form-container">
@@ -23,11 +32,23 @@ export const Register = () => {
       <form onSubmit={onSubmit}>
         <div className="form-group">
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" value={name} onChange={onChange} />
+          <input
+            type="text"
+            name="name"
+            value={name}
+            onChange={onChange}
+            required
+          />
         </div>
         <div className="form-group">
           <label htmlFor="email">Email Address</label>
-          <input type="email" name="email" value={email} onChange={onChange} />
+          <input
+            type="email"
+            name="email"
+            value={email}
+            onChange={onChange}
+            required
+          />
         </div>
         <div className="form-group">
           <label htmlFor="password">Password</label>
@@ -36,6 +57,8 @@ export const Register = () => {
             name="password"
             value={password}
             onChange={onChange}
+            minLength="8"
+            required
           />
         </div>
 
@@ -46,6 +69,8 @@ export const Register = () => {
             name="password2"
             value={password2}
             onChange={onChange}
+            minLength="8"
+            required
           />
         </div>
         <input
